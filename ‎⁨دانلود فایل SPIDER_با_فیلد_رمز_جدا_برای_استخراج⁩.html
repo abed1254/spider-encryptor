@@ -1,0 +1,129 @@
+
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <title>SPIDER - رمزنگاری لینک به جملات</title>
+  <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.min.js"></script>
+  <style>
+    body {
+      font-family: Tahoma, sans-serif;
+      background: linear-gradient(to bottom right, #f1f1f1, #e2f0ef);
+      padding: 30px;
+      direction: rtl;
+      text-align: center;
+    }
+    textarea, input {
+      width: 90%;
+      max-width: 650px;
+      margin: 8px auto;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+      display: block;
+      background: #fff;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 15px;
+      margin: 10px 5px;
+      border: none;
+      border-radius: 6px;
+      background-color: #2a9d8f;
+      color: #fff;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #21867a;
+    }
+    .brand {
+      font-size: 28px;
+      font-weight: bold;
+      color: #222;
+      margin-bottom: 10px;
+    }
+    .footer {
+      margin-top: 30px;
+      color: #666;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="brand">spider1254 🕷️</div>
+  <h2>رمزنگاری لینک سرور به جمله فارسی - SPIDER</h2>
+
+  <input type="text" id="key" placeholder="🔑 رمز برای رمزگذاری">
+  <textarea id="linkInput" placeholder="🔗 لینک سرور (vmess://...) را وارد کن"></textarea>
+  <button onclick="convertToSentences()">🎭 تبدیل به جملات فارسی</button>
+  <textarea id="encodedSentences" readonly placeholder="📤 جملات فارسی قابل ارسال"></textarea>
+
+  <hr style="margin: 30px 0;">
+
+  <textarea id="sentenceInput" placeholder="📥 جملات دریافتی را اینجا وارد کن"></textarea>
+  <input type="text" id="decodeKey" placeholder="🔑 رمز برای بازگشایی">
+  <button onclick="decodeToLink()">🔓 بازگردانی به لینک اصلی</button>
+  <textarea id="originalLink" readonly placeholder="🔗 لینک بازیابی‌شده اینجاست"></textarea>
+
+  <div class="footer">
+    ساخته‌شده با ❤️ توسط spider1254<br>
+    ایمیل: abed012540@gmail.com<br>
+    ابزار SPIDER برای رمزنگاری امن لینک‌های حساس
+  </div>
+
+  <script>
+    const sentenceList = [
+      "امروز آسمان ابری بود.",
+      "فنجان قهوه‌ام را با بی‌حوصلگی نوشیدم.",
+      "کتاب قدیمی روی میز خاک می‌خورد.",
+      "کفش‌هایم هنوز خیس بودند.",
+      "صدای باران شبیه لالایی بود.",
+      "باغچه‌ی مادربزرگ بوی نعنا می‌داد.",
+      "ساعت روی دیوار خوابش برده بود.",
+      "پرنده‌ای بی‌صدا روی شاخه نشست.",
+      "خاطراتم در گوشه‌ی دفتر محو شدند.",
+      "پشت پنجره فقط مه دیده می‌شد."
+    ];
+
+    function convertToSentences() {
+      const link = document.getElementById("linkInput").value.trim();
+      const key = document.getElementById("key").value.trim();
+      if (!link || !key) return alert("لطفاً لینک و رمز را وارد کن");
+
+      const encrypted = CryptoJS.AES.encrypt(link, key).toString();
+      let output = "";
+      for (let i = 0; i < encrypted.length; i++) {
+        const index = encrypted.charCodeAt(i) % sentenceList.length;
+        output += sentenceList[index] + " ";
+      }
+      document.getElementById("encodedSentences").value = output.trim();
+    }
+
+    function decodeToLink() {
+      const sentences = document.getElementById("sentenceInput").value.trim();
+      const key = document.getElementById("decodeKey").value.trim();
+      if (!sentences || !key) return alert("لطفاً جملات و رمز بازگشایی را وارد کن");
+
+      const parts = sentences.split(/\.|\n/).filter(Boolean);
+      let encrypted = "";
+      for (let s of parts) {
+        let index = sentenceList.findIndex(e => s.trim().startsWith(e.trim().slice(0, 4)));
+        if (index === -1) index = 0;
+        encrypted += String.fromCharCode(index + 33);
+      }
+
+      try {
+        const decrypted = CryptoJS.AES.decrypt(encrypted, key).toString(CryptoJS.enc.Utf8);
+        if (!decrypted) throw "error";
+        document.getElementById("originalLink").value = decrypted;
+      } catch {
+        alert("❌ رمز اشتباه است یا متن آسیب دیده!");
+      }
+    }
+  </script>
+
+</body>
+</html>
